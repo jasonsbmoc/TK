@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TK Hover Animation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: white;
+      display: flex;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+    }
+    #hoverText {
+      font-family: 'Inter', sans-serif;
+      font-size: 3rem;
+      font-weight: 400;
+      color: black;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.3s ease;
+      letter-spacing: -.04em;
+    }
+  </style>
+</head>
+<body>
+  <div id="hoverText">TK</div>
+
+  <script>
+    const words = [
+      "Thoughtful Keyboard",
+      "Text Kaleidoscope",
+      "Tactful Knowledge",
+      "Talkative Keeper",
+      "Technical Knockout",
+      "Tying Knots",
+      "Thankyou Kindly",
+      "Terminal Kiosk",
+      "Tasteful Karma"
+    ];
+
+    const textEl = document.getElementById("hoverText");
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    let original = "TK";
+
+    function glitchEffect(targetText) {
+      let iterations = 0;
+      const maxIterations = 7;
+      const interval = setInterval(() => {
+        const displayed = targetText
+          .split("")
+          .map((char, i) => {
+            if (char === " ") return " ";
+            if (i < iterations / 2) return targetText[i];
+            return letters[Math.floor(Math.random() * letters.length)];
+          })
+          .join("");
+
+        textEl.textContent = displayed;
+
+        if (iterations >= maxIterations) {
+          clearInterval(interval);
+          textEl.textContent = targetText;
+        }
+        iterations++;
+      }, 50);
+    }
+
+    textEl.addEventListener("mouseenter", () => {
+      const newWord = words[Math.floor(Math.random() * words.length)];
+      glitchEffect(newWord);
+    });
+
+    textEl.addEventListener("mouseleave", () => {
+      glitchEffect(original);
+    });
+  </script>
+</body>
+</html>
