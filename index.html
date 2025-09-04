@@ -1,33 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>TK?</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <title>TK Landing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400,600&display=swap" rel="stylesheet">
   <style>
-    body {
-      background: white;
-      display: flex;
-      height: 100vh;
-      justify-content: center;
-      align-items: center;
+    :root{
+      --bg: #FCFBF8;
+      --fg: #000000;
+      --soft: #7a7a7a;           /* soft gray text */
+      --muted: #F7F4ED;          /* light gray field (idle) */
+      --typing: #FFEDE5;         /* field bg when typing */
+      --accent: #FF5B15;         /* arrow button + active outline */
+      --radius: 14px;
+      --pad: 18px;
     }
-    #hoverText {
-      font-family: 'Inter', sans-serif;
+
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Cursor-follow gradient layer (bigger + more vibrant) */
+    .glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 40px 16px;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      text-align: center;
+      max-width: 680px;
+      width: 100%;
+    }
+
+    /* TK Hover Target */
+    #hoverText{
       font-size: 3rem;
-      font-weight: 400;
-      color: black;
+      font-weight: 600;
+      letter-spacing: -0.03em;
       cursor: pointer;
       user-select: none;
-      transition: all 0.3s ease;
-      letter-spacing: -.04em;
+      transition: transform 0.2s ease;
+    }
+    #hoverText:hover { transform: scale(1.01); }
+
+    /* Caption line */
+    .caption{
+      margin-top: 8px;
+      font-size: clamp(14px, 1.8vw, 16px);
+      color: #6B6B6B;
+    }
+
+    /* Email capture */
+    .form {
+      margin-top: 12px;
+      width: min(420px, 100%); /* narrower */
+    }
+
+    .field {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: var(--muted);
+      border-radius: var(--radius);
+      padding: 0 var(--pad);
+      height: 54px;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    /* Active outline on focus */
+    .field:focus-within{
+      box-shadow: 0 0 0 2px var(--accent) inset;
+    }
+    /* When typing, shift bg to #FFEDE5 and keep accent outline if focused */
+    .field.typing{
+      background: var(--typing);
+    }
+
+    .field input{
+      flex: 1;
+      height: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 16px;
+      color: var(--fg);
+    }
+    .field input::placeholder{
+      color: #9b9b9b;
+    }
+
+    /* Submit button inside the field (appears when typing) */
+    .submit {
+      position: absolute;
+      right: 6px;
+      top: 6px;
+      bottom: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      border-radius: calc(var(--radius) - 6px);
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateX(8px) scale(0.98);
+      transition: opacity 160ms ease, transform 200ms cubic-bezier(.22,1,.36,1);
+      will-change: transform, opacity;
+    }
+    .submit.show {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    .submit:active {
+      transform: translateX(0) scale(0.98);
+    }
+    .submit svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    .confirm {
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--soft);
+      min-height: 1.2em;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity .25s ease, transform .25s ease;
+    }
+    .confirm.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 420px){
+      .field { height: 50px; }
     }
   </style>
 </head>
 <body>
-  <div id="hoverText">TK</div>
+  <!-- Subtle cursor-follow glow -->
+  <div class="glow" id="glow"></div>
+
+  <main class="wrap">
+    <section class="stack">
+      <div id="hoverText">TK</div>
+      <div class="caption">A new thinking application by <b>Medium</b></div>
+
+      <form class="form" onsubmit="return false;">
+        <div class="field" id="field">
+          <input id="email" type="email" inputmode="email" autocomplete="email"
+                 placeholder="Enter your email to be notified" aria-label="Email" />
+          <button id="submit" class="submit" aria-label="Submit email">
+            <!-- Crisp SVG arrow (right arrow, rounded) -->
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 12h10.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+              <path d="M13.5 7.5L18 12l-4.5 4.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div id="confirm" class="confirm" aria-live="polite"></div>
+      </form>
+    </section>
+  </main>
 
   <script>
+    /* ==== TK GLITCH HOVER ==== */
     const words = [
       "Thoughtful Keyboard",
       "Text Kaleidoscope",
@@ -42,33 +206,33 @@
       "Tricky Keyhole",
       "Tinkering Kobold",
       "Turbulent Kite",
-      "Tomorrow's Key",
+      "Tomorrows Key",
       "Timeless Knowing",
       "True Kinship",
-      "Tasty Ketchup",
-      "Textured Kingdom",
-      "Thought Kit",
-      "Trusted Keepsake",
-      "To Know",
-      "Tiny Kangaroo",
+      "Tasty Ketchup"
     ];
 
     const textEl = document.getElementById("hoverText");
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    let original = "TK";
+    const original = "TK";
+    let lastIndex = -1;
+
+    function randomIndexExcept(length, except){
+      if (length <= 1) return 0;
+      let idx = Math.floor(Math.random() * length);
+      if (idx === except) idx = (idx + 1) % length;
+      return idx;
+    }
 
     function glitchEffect(targetText) {
       let iterations = 0;
       const maxIterations = 7;
       const interval = setInterval(() => {
-        const displayed = targetText
-          .split("")
-          .map((char, i) => {
-            if (char === " ") return " ";
-            if (i < iterations / 2) return targetText[i];
-            return letters[Math.floor(Math.random() * letters.length)];
-          })
-          .join("");
+        const displayed = targetText.split("").map((char, i) => {
+          if (char === " ") return " ";
+          if (i < Math.floor(iterations / 2)) return targetText[i];
+          return letters[Math.floor(Math.random() * letters.length)];
+        }).join("");
 
         textEl.textContent = displayed;
 
@@ -81,13 +245,85 @@
     }
 
     textEl.addEventListener("mouseenter", () => {
-      const newWord = words[Math.floor(Math.random() * words.length)];
-      glitchEffect(newWord);
+      const idx = randomIndexExcept(words.length, lastIndex);
+      lastIndex = idx;
+      glitchEffect(words[idx]);
     });
 
     textEl.addEventListener("mouseleave", () => {
       glitchEffect(original);
     });
+
+    /* ==== EMAIL FIELD INTERACTION ==== */
+    const emailInput = document.getElementById('email');
+    const submitBtn  = document.getElementById('submit');
+    const confirmMsg = document.getElementById('confirm');
+    const fieldWrap  = document.getElementById('field');
+
+    function updateFieldState() {
+      const hasText = emailInput.value.trim().length > 0;
+      submitBtn.classList.toggle('show', hasText);
+      fieldWrap.classList.toggle('typing', hasText);
+    }
+
+    emailInput.addEventListener('input', updateFieldState);
+
+    // Allow pressing Enter to “submit”
+    emailInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && emailInput.value.trim().length > 0) {
+        e.preventDefault();
+        submitBtn.click();
+      }
+    });
+
+    submitBtn.addEventListener('click', () => {
+      // Presentation only: clear input, hide button, show confirmation
+      emailInput.value = "";
+      updateFieldState();
+      confirmMsg.textContent = "Stay tuned, more TK.";
+      confirmMsg.classList.add('show');
+      setTimeout(() => confirmMsg.classList.remove('show'), 2500);
+    });
+
+    /* ==== CURSOR-FOLLOW RADIAL GRADIENT (larger + more vibrant) ==== */
+    const glow = document.getElementById('glow');
+
+    // Create a single “blob” we can move around
+    const blob = document.createElement('div');
+    blob.style.position = 'absolute';
+    blob.style.width = '480px';   // larger
+    blob.style.height = '480px';  // larger
+    blob.style.borderRadius = '50%';
+    blob.style.background = 'radial-gradient(closest-side, rgba(255,91,21,0.24), rgba(255,91,21,0))'; /* more vibrant */
+    blob.style.filter = 'blur(24px)'; /* softer edge */
+    blob.style.transform = 'translate(-50%, -50%)';
+    blob.style.willChange = 'transform';
+    glow.appendChild(blob);
+
+    let targetX = window.innerWidth / 2;
+    let targetY = window.innerHeight / 2;
+    let dotX = targetX, dotY = targetY;
+    let fadeTimer;
+
+    window.addEventListener('mousemove', (e) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+      glow.style.opacity = '1';
+
+      clearTimeout(fadeTimer);
+      fadeTimer = setTimeout(() => {
+        glow.style.opacity = '0';
+      }, 650); // fade after user stops moving
+    });
+
+    // Ease-follow loop
+    (function loop(){
+      const ease = 0.08;
+      dotX += (targetX - dotX) * ease;
+      dotY += (targetY - dotY) * ease;
+      blob.style.transform = `translate(${dotX}px, ${dotY}px) translate(-50%, -50%)`;
+      requestAnimationFrame(loop);
+    })();
   </script>
 </body>
 </html>
