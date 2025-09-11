@@ -2,19 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>TK</title>
+  <title>TK Landing</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg: #FCFBF8;
+      --bg: #ffffff;
       --fg: #000000;
-      --soft: #7a7a7a;           /* soft gray text */
-      --muted: #F7F4ED;          /* light gray field (idle) */
-      --typing: #FFEDE5;         /* field bg when typing */
-      --accent: #FF5B15;         /* arrow button + active outline */
+      --soft: #7a7a7a;
+      --muted: #F7F4ED;
+      --typing: #FFEDE5;
+      --accent: #FF5B15;
       --radius: 14px;
       --pad: 18px;
+      --legal: #bbbbbb;
     }
 
     * { box-sizing: border-box; }
@@ -26,7 +27,6 @@
       font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
     }
 
-    /* Cursor-follow gradient layer (bigger + more vibrant) */
     .glow {
       position: fixed;
       inset: 0;
@@ -37,27 +37,34 @@
     }
 
     .wrap {
-      position: relative;
-      z-index: 1;
-      min-height: 100%;
-      display: grid;
-      place-items: center;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center; 
+      align-items: center;     
       padding: 40px 16px;
+      text-align: center;     
     }
 
-    .stack {
+    .content {
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: center;  
+      justify-content: center;
       gap: 14px;
-      text-align: center;
       max-width: 680px;
-      width: 100%;
+      width: auto;
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity .45s ease, transform .45s ease;
     }
 
-    /* TK Hover Target */
+    .content.fade-out {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+
     #hoverText{
-      font-size: 3rem;
+      font-size: clamp(32px, 10vw, 48px);
       font-weight: 600;
       letter-spacing: -0.03em;
       cursor: pointer;
@@ -66,18 +73,26 @@
     }
     #hoverText:hover { transform: scale(1.01); }
 
-    /* Caption line */
     .caption{
       margin-top: 0px;
-      margin-bottom: 12px;
       font-size: clamp(14px, 1.8vw, 16px);
-      color: #6B6B6B;
+      line-height: 130%;
+      color: var(--soft);
     }
 
-    /* Email capture */
     .form {
-      margin-top: 12px;
-      width: min(420px, 100%); /* narrower */
+  /* was: margin-top: 12px;  <-- remove this */
+  margin: 0;
+  width: min(420px, 100%);
+  display: grid;
+  gap: 10px;
+}
+
+    .label {
+      text-align: left;
+      font-size: 14px;
+      color: var(--soft);
+      margin: 2px 0 -6px 2px;
     }
 
     .field {
@@ -90,11 +105,9 @@
       height: 54px;
       transition: background-color 0.2s ease, box-shadow 0.2s ease;
     }
-    /* Active outline on focus */
     .field:focus-within{
       box-shadow: 0 0 0 2px var(--accent) inset;
     }
-    /* When typing, shift bg to #FFEDE5 and keep accent outline if focused */
     .field.typing{
       background: var(--typing);
     }
@@ -112,7 +125,6 @@
       color: #9b9b9b;
     }
 
-    /* Submit button inside the field (appears when typing) */
     .submit {
       position: absolute;
       right: 6px;
@@ -131,14 +143,10 @@
       opacity: 0;
       transform: translateX(8px) scale(0.98);
       transition: opacity 160ms ease, transform 200ms cubic-bezier(.22,1,.36,1);
-      will-change: transform, opacity;
     }
     .submit.show {
       opacity: 1;
       transform: translateX(0) scale(1);
-    }
-    .submit:active {
-      transform: translateX(0) scale(0.98);
     }
     .submit svg {
       width: 18px;
@@ -146,18 +154,31 @@
       display: block;
     }
 
-    .confirm {
-      margin-top: 8px;
-      font-size: 14px;
-      color: var(--soft);
-      min-height: 1.2em;
-      opacity: 0;
-      transform: translateY(4px);
-      transition: opacity .25s ease, transform .25s ease;
+    .legal {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--legal);
+      text-wrap: balance;
     }
-    .confirm.show {
+
+    .thankyou {
+      position: fixed;      
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-size: 18px;
+      color: var(--soft);
+      opacity: 0;
+      visibility: hidden;       
+      transition: opacity .45s ease, visibility 0s linear .45s;
+    }
+    
+    .thankyou.show {
       opacity: 1;
-      transform: translateY(0);
+      visibility: visible;
+      transition: opacity .45s ease;
     }
 
     @media (max-width: 420px){
@@ -165,59 +186,55 @@
     }
 
     a {
-        color: #000000; /* Changes link color */
-        text-decoration: none; /* Removes underline */    
+        color: #000000;
+        text-decoration: none;    
     }
   </style>
 </head>
 <body>
-  <!-- Subtle cursor-follow glow -->
   <div class="glow" id="glow"></div>
 
   <main class="wrap">
-    <section class="stack">
+    <section id="content" class="content" aria-live="polite">
       <div id="hoverText">TK</div>
-      <div class="caption">A new writing app by <a href=http://medium.com>Medium</a></div>
+      <div class="caption">A new writing app by <a href="http://medium.com">Medium.</a> <br>Sign up for the waitlist now.</div>
 
       <form class="form" onsubmit="return false;">
-        <div class="field" id="field">
+        <div class="field" id="nameField">
+          <input id="name" type="text" autocomplete="name" placeholder="Your name (optional)" aria-label="Name (optional)" />
+        </div>
+
+        <div class="field" id="emailField">
           <input id="email" type="email" inputmode="email" autocomplete="email"
-                 placeholder="Enter your email to be notified" aria-label="Email" />
+                 placeholder="Email address" aria-label="Email" />
           <button id="submit" class="submit" aria-label="Submit email">
-            <!-- Crisp SVG arrow (right arrow, rounded) -->
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M6 12h10.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
               <path d="M13.5 7.5L18 12l-4.5 4.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
         </div>
-        <div id="confirm" class="confirm" aria-live="polite"></div>
+
+        <div class="legal">
+          PLACEHOLDER: By submitting your information, you agree to be sent marketing emails by Medium.
+          Medium will not use or sell your personal information to any third party.
+        </div>
       </form>
+    </section>
+
+    <section id="thankyou" class="thankyou" role="status" aria-live="polite">
+      Thank you. You're now on the waitlist for TK. Stay tuned for more.
     </section>
   </main>
 
   <script>
-    /* ==== TK GLITCH HOVER ==== */
+    /* Glitch hover */
     const words = [
-      "Thoughtful Keyboard",
-      "Text Kaleidoscope",
-      "Tactful Knowledge",
-      "Talkative Keeper",
-      "Technical Knockout",
-      "Tying Knots",
-      "Thankyou Kindly",
-      "Terminal Kiosk",
-      "Tasteful Karma",
-      "Tangled Know-it-all",
-      "Tricky Keyhole",
-      "Tinkering Kobold",
-      "Turbulent Kite",
-      "Tomorrows Key",
-      "Timeless Knowing",
-      "True Kinship",
-      "Tasty Ketchup"
+      "Thoughtful Keyboard","Text Kaleidoscope","Tactful Knowledge","Talkative Keeper",
+      "Technical Knockout","Tying Knots","Thankyou Kindly","Terminal Kiosk",
+      "Tasteful Karma","Tangled Know-it-all","Tricky Keyhole","Tinkering Kobold",
+      "Turbulent Kite","Tomorrows Key","Timeless Knowing","True Kinship","Tasty Ketchup"
     ];
-
     const textEl = document.getElementById("hoverText");
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     const original = "TK";
@@ -229,7 +246,6 @@
       if (idx === except) idx = (idx + 1) % length;
       return idx;
     }
-
     function glitchEffect(targetText) {
       let iterations = 0;
       const maxIterations = 7;
@@ -239,9 +255,7 @@
           if (i < Math.floor(iterations / 2)) return targetText[i];
           return letters[Math.floor(Math.random() * letters.length)];
         }).join("");
-
         textEl.textContent = displayed;
-
         if (iterations >= maxIterations) {
           clearInterval(interval);
           textEl.textContent = targetText;
@@ -249,32 +263,33 @@
         iterations++;
       }, 50);
     }
-
     textEl.addEventListener("mouseenter", () => {
       const idx = randomIndexExcept(words.length, lastIndex);
       lastIndex = idx;
       glitchEffect(words[idx]);
     });
-
     textEl.addEventListener("mouseleave", () => {
       glitchEffect(original);
     });
 
-    /* ==== EMAIL FIELD INTERACTION ==== */
+    /* Form logic */
     const emailInput = document.getElementById('email');
+    const nameInput  = document.getElementById('name');
+    const emailField = document.getElementById('emailField');
+    const nameField  = document.getElementById('nameField');
     const submitBtn  = document.getElementById('submit');
-    const confirmMsg = document.getElementById('confirm');
-    const fieldWrap  = document.getElementById('field');
+    const content    = document.getElementById('content');
+    const thankyou   = document.getElementById('thankyou');
 
-    function updateFieldState() {
-      const hasText = emailInput.value.trim().length > 0;
-      submitBtn.classList.toggle('show', hasText);
-      fieldWrap.classList.toggle('typing', hasText);
+    function updateTypingState(input, field, withButton=false){
+      const hasText = input.value.trim().length > 0;
+      field.classList.toggle('typing', hasText);
+      if (withButton) submitBtn.classList.toggle('show', hasText);
     }
 
-    emailInput.addEventListener('input', updateFieldState);
+    emailInput.addEventListener('input', () => updateTypingState(emailInput, emailField, true));
+    nameInput.addEventListener('input', () => updateTypingState(nameInput, nameField));
 
-    // Allow pressing Enter to “submit”
     emailInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && emailInput.value.trim().length > 0) {
         e.preventDefault();
@@ -283,46 +298,36 @@
     });
 
     submitBtn.addEventListener('click', () => {
-      // Presentation only: clear input, hide button, show confirmation
-      emailInput.value = "";
-      updateFieldState();
-      confirmMsg.textContent = "Stay tuned, more TK.";
-      confirmMsg.classList.add('show');
-      setTimeout(() => confirmMsg.classList.remove('show'), 2500);
+      if (!emailInput.value.trim()) return;
+      content.classList.add('fade-out');
+      const onEnd = () => {
+        content.style.display = 'none';
+        thankyou.classList.add('show');
+        content.removeEventListener('transitionend', onEnd);
+      };
+      content.addEventListener('transitionend', onEnd);
     });
 
-    /* ==== CURSOR-FOLLOW RADIAL GRADIENT (larger + more vibrant) ==== */
+    /* Cursor glow */
     const glow = document.getElementById('glow');
-
-    // Create a single “blob” we can move around
     const blob = document.createElement('div');
     blob.style.position = 'absolute';
-    blob.style.width = '480px';   // larger
-    blob.style.height = '480px';  // larger
+    blob.style.width = '480px';
+    blob.style.height = '480px';
     blob.style.borderRadius = '50%';
-    blob.style.background = 'radial-gradient(closest-side, rgba(255,91,21,0.24), rgba(255,91,21,0))'; /* more vibrant */
-    blob.style.filter = 'blur(24px)'; /* softer edge */
+    blob.style.background = 'radial-gradient(closest-side, rgba(255,91,21,0.24), rgba(255,91,21,0))';
+    blob.style.filter = 'blur(24px)';
     blob.style.transform = 'translate(-50%, -50%)';
-    blob.style.willChange = 'transform';
     glow.appendChild(blob);
 
-    let targetX = window.innerWidth / 2;
-    let targetY = window.innerHeight / 2;
-    let dotX = targetX, dotY = targetY;
-    let fadeTimer;
-
+    let targetX = window.innerWidth / 2, targetY = window.innerHeight / 2;
+    let dotX = targetX, dotY = targetY, fadeTimer;
     window.addEventListener('mousemove', (e) => {
-      targetX = e.clientX;
-      targetY = e.clientY;
+      targetX = e.clientX; targetY = e.clientY;
       glow.style.opacity = '1';
-
       clearTimeout(fadeTimer);
-      fadeTimer = setTimeout(() => {
-        glow.style.opacity = '0';
-      }, 650); // fade after user stops moving
+      fadeTimer = setTimeout(() => glow.style.opacity = '0', 650);
     });
-
-    // Ease-follow loop
     (function loop(){
       const ease = 0.08;
       dotX += (targetX - dotX) * ease;
