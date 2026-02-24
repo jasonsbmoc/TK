@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TK</title>
+    <title>Abstract Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -35,8 +38,13 @@
             height: 100%;
         }
 
-        button {
+        .controls {
+            display: flex;
+            gap: 8px;
             margin-top: 24px;
+        }
+
+        button {
             padding: 8px;
             cursor: pointer;
             border: none;
@@ -51,16 +59,43 @@
             width: 16px;
             height: 16px;
         }
+
+        .alert {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: #aaa;
+            margin-top: 16px;
+            opacity: 0;
+            transition: opacity 0.15s ease-in;
+        }
+
+        .alert.visible {
+            opacity: 1;
+        }
+
+        .alert.fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+        }
     </style>
 </head>
 <body>
     <div class="frame" id="frame"></div>
-    <button onclick="generate()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
-            <path d="M21 3v5h-5"/>
-        </svg>
-    </button>
+    <div class="controls">
+        <button onclick="generate()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+                <path d="M21 3v5h-5"/>
+            </svg>
+        </button>
+        <button onclick="copyToClipboard()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+        </button>
+    </div>
+    <div class="alert" id="alert">Copied to clipboard</div>
 
     <script>
         const sets = {
@@ -77,7 +112,17 @@
             return `Images/${letter}-${numbers[randomIndex]}.png`;
         }
 
+        let alertTimeout;
+
+        function hideAlert() {
+            const alert = document.getElementById('alert');
+            alert.classList.remove('visible');
+            alert.classList.remove('fade-out');
+            if (alertTimeout) clearTimeout(alertTimeout);
+        }
+
         function generate() {
+            hideAlert();
             const frame = document.getElementById('frame');
             frame.innerHTML = '';
 
@@ -85,10 +130,49 @@
 
             layers.forEach((letter, index) => {
                 const img = document.createElement('img');
+                img.crossOrigin = 'anonymous';
                 img.src = getRandomFromSet(letter);
                 img.style.zIndex = index;
                 frame.appendChild(img);
             });
+        }
+
+        async function copyToClipboard() {
+            const frame = document.getElementById('frame');
+            const images = frame.querySelectorAll('img');
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 100;
+            const ctx = canvas.getContext('2d');
+
+            // Draw each layer in order
+            for (const img of images) {
+                ctx.drawImage(img, 0, 0, 100, 100);
+            }
+
+            // Convert to blob and copy to clipboard
+            canvas.toBlob(async (blob) => {
+                try {
+                    await navigator.clipboard.write([
+                        new ClipboardItem({ 'image/png': blob })
+                    ]);
+                    showAlert();
+                } catch (err) {
+                    console.error('Failed to copy:', err);
+                }
+            }, 'image/png');
+        }
+
+        function showAlert() {
+            const alert = document.getElementById('alert');
+            if (alertTimeout) clearTimeout(alertTimeout);
+            alert.classList.remove('fade-out');
+            alert.classList.add('visible');
+
+            alertTimeout = setTimeout(() => {
+                alert.classList.add('fade-out');
+            }, 2000);
         }
 
         // Generate on page load
